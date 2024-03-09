@@ -1,18 +1,12 @@
 const express = require('express')
-
 const app = express()
-
 const http = require('http')
-
 const { Server } = require('socket.io')
-
 const cors = require('cors')
 
 app.use(cors())
 
 const server = http.createServer(app)
-
-let users = []
 
 const io = new Server(server, {
     cors: {
@@ -22,21 +16,24 @@ const io = new Server(server, {
     }
 })
 
-io.on('connection', (socket) => {
-    console.log(socket.id)
-    socket.on('send-nickname', function(nickname) {
-        socket.nickname = nickname
+async function getUsers (room) {
+    let users = []
+    const sockets = await io.in(room).fetchSockets();
+    for (const socket of sockets) {
+        // console.log(socket.nickname)
         users.push(socket.nickname)
-        console.log(users)
-        socket.emit('users-list', users)
-    })
-    socket.on('join-room', function(room) {
-        socket.join(room)
-        console.log(room)
+    }
+    io.to(room).emit('users', users)
+}
+
+io.on('connection', (socket) => {
+    socket.on('join-room', ({name, roomToJoin}) => {
+        socket.nickname = name
+        socket.join(roomToJoin)
+        // console.log(name, roomToJoin)
+        getUsers(roomToJoin)
     })
 })
-
-
 
 server.listen(3001, () => {
     console.log('server running')
