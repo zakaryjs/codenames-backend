@@ -16,13 +16,19 @@ const io = new Server(server, {
     }
 })
 
+let rooms = {}
+
 async function getUsers (room) {
-    let users = []
+    let newRoom = {
+        users: [],
+        words: []
+    }
     const sockets = await io.in(room).fetchSockets();
     for (const socket of sockets) {
-        users.push(socket.nickname)
+        newRoom.users.push(socket.nickname)
     }
-    io.to(room).emit('users', users)
+    io.to(room).emit('users', newRoom.users)
+    rooms[room] = newRoom
 }
 
 function durstenfeldShuffle(array) {
@@ -38,9 +44,12 @@ function generateWords(callback) {
         const lines = data.split('\n')
         const randomWords = []
         let randomWordsData = []
-        for (let i = 0; i < 25; i++) {
+        while (randomWords.length < 25) {
             let randomWordIndex = Math.floor(Math.random() * lines.length)
             let randomWord = lines[randomWordIndex].trim()
+            if (randomWords.includes(randomWord)) {
+                continue
+            }
             randomWords.push(randomWord)
         }
         for (let i = 0; i < 25; i++) {
@@ -86,10 +95,11 @@ io.on('connection', (socket) => {
     })
     socket.on('start-game', (roomToJoin) => {
         generateWords((words) => {
-            console.log(words)
+            const room = rooms[roomToJoin]
+            room.words = words
+            console.log(JSON.stringify(room, null, 4))
             io.to(roomToJoin).emit('game-started', words)
         })
-        
     })
 })
 
