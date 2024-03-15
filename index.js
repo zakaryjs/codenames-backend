@@ -21,7 +21,12 @@ let rooms = {}
 async function getUsers (room) {
     let newRoom = {
         users: [],
-        words: []
+        words: [],
+        teams: {
+            orange: [],
+            blue: []
+        },
+        clues: []
     }
     const sockets = await io.in(room).fetchSockets();
     for (const socket of sockets) {
@@ -101,6 +106,16 @@ io.on('connection', (socket) => {
             io.to(roomToJoin).emit('game-started', words)
         })
     })
+    socket.on('join-team', ({name, roomToJoin, teamToJoin}) => {
+        rooms[roomToJoin].teams[teamToJoin].push(name)
+        console.log(rooms[roomToJoin])
+        let toSend = {
+            orange: rooms[roomToJoin].teams.orange,
+            blue: rooms[roomToJoin].teams.blue
+        }
+        console.log(toSend)
+        io.to(roomToJoin).emit('teams', toSend)
+    }) 
 })
 
 server.listen(3001, () => {
