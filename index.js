@@ -26,6 +26,10 @@ async function getUsers (room) {
             orange: [],
             blue: []
         },
+        spymasters: {
+            orange: [],
+            blue: [],
+        },
         clues: []
     }
     const sockets = await io.in(room).fetchSockets();
@@ -116,6 +120,16 @@ io.on('connection', (socket) => {
         console.log(toSend)
         io.to(roomToJoin).emit('teams', toSend)
     }) 
+    socket.on('become-spymaster', ({name, roomToJoin, teamToJoin}) => {
+        rooms[roomToJoin].spymasters[teamToJoin].push(name)
+        console.log(rooms[roomToJoin])
+        let toSend = {
+            orange: rooms[roomToJoin].spymasters.orange,
+            blue: rooms[roomToJoin].spymasters.blue
+        }
+        console.log(toSend)
+        io.to(roomToJoin).emit('spymasters', toSend)
+    })
 })
 
 server.listen(3001, () => {
