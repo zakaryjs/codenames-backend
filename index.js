@@ -76,14 +76,14 @@ function generateWords(callback) {
                 }
                 randomWordsData.push(data)
             }
-            if (i > 7 && i < 15) {
+            if (i > 7 && i < 16) {
                 let data = {
                     word: randomWords[i],
                     colour: 'orange'
                 }
                 randomWordsData.push(data)
             }
-            if (i > 14) {
+            if (i > 15) {
                 let data = {
                     word: randomWords[i],
                     colour: 'neutral'
