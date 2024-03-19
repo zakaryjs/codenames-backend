@@ -90,7 +90,8 @@ function generateWords(callback) {
             if (i > 15) {
                 let data = {
                     word: randomWords[i],
-                    colour: 'neutral'
+                    colour: 'neutral',
+                    found: ''
                 }
                 randomWordsData.push(data)
             }
@@ -156,6 +157,8 @@ io.on('connection', (socket) => {
         let word = rooms[roomToJoin].words.find((word) => word.word === a)
         word.found = word.colour + '-found'
         console.log(rooms[roomToJoin].words)
+        let words = rooms[roomToJoin].words
+        socket.emit('guess-received', words)
     } )
 })
 
