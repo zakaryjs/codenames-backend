@@ -30,6 +30,7 @@ async function getUsers (room) {
             orange: [],
             blue: [],
         },
+        guesses: [],
         clues: []
     }
     const sockets = await io.in(room).fetchSockets();
@@ -65,21 +66,24 @@ function generateWords(callback) {
             if (i === 0) {
                 let data = {
                     word: randomWords[i],
-                    colour: 'black'
+                    colour: 'black',
+                    found: ''
                 }
                 randomWordsData.push(data)
             }
             if (i > 0 && i < 8) {
                 let data = {
                     word: randomWords[i],
-                    colour: 'blue'
+                    colour: 'blue',
+                    found: ''
                 }
                 randomWordsData.push(data)
             }
             if (i > 7 && i < 16) {
                 let data = {
                     word: randomWords[i],
-                    colour: 'orange'
+                    colour: 'orange',
+                    found: ''
                 }
                 randomWordsData.push(data)
             }
@@ -130,6 +134,29 @@ io.on('connection', (socket) => {
         console.log(toSend)
         io.to(roomToJoin).emit('spymasters', toSend)
     })
+    socket.on('give-clue', ({roomToJoin, teamToJoin, clue}) => {
+        // let turn;
+        // if (teamToJoin == 'orange') {
+        //     turn = 'blue'
+        // }
+        // if (teamToJoin == 'blue') {
+        //     turn = 'orange'
+        // }
+        // turn: turn
+        rooms[roomToJoin].clues.push(clue)
+        let toSend = {
+            clues: rooms[roomToJoin].clues,
+
+        }
+        io.to(roomToJoin).emit('clues', toSend)
+    })
+    socket.on('give-guess', ({roomToJoin, teamToJoin, a}) => {
+        console.log(a)
+        rooms[roomToJoin].guesses.push(a)
+        let word = rooms[roomToJoin].words.find((word) => word.word === a)
+        word.found = word.colour + '-found'
+        console.log(rooms[roomToJoin].words)
+    } )
 })
 
 server.listen(3001, () => {
