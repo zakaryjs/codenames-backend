@@ -158,7 +158,7 @@ io.on('connection', (socket) => {
         word.found = word.colour + '-found'
         console.log(rooms[roomToJoin].words)
         let words = rooms[roomToJoin].words
-        socket.emit('guess-received', words)
+        io.to(roomToJoin).emit('guess-received', words)
     } )
 })
 
