@@ -124,22 +124,18 @@ io.on('connection', (socket) => {
     })
     socket.on('join-team', ({name, roomToJoin, teamToJoin}) => {
         rooms[roomToJoin].teams[teamToJoin].push(name)
-        console.log(rooms[roomToJoin])
         let toSend = {
             orange: rooms[roomToJoin].teams.orange,
             blue: rooms[roomToJoin].teams.blue
         }
-        console.log(toSend)
         io.to(roomToJoin).emit('teams', toSend)
     }) 
     socket.on('become-spymaster', ({name, roomToJoin, teamToJoin}) => {
         rooms[roomToJoin].spymasters[teamToJoin].push(name)
-        console.log(rooms[roomToJoin])
         let toSend = {
             orange: rooms[roomToJoin].spymasters.orange,
             blue: rooms[roomToJoin].spymasters.blue
         }
-        console.log(toSend)
         io.to(roomToJoin).emit('spymasters', toSend)
     })
     socket.on('give-clue', ({roomToJoin, teamToJoin, clue}) => {
@@ -168,7 +164,6 @@ io.on('connection', (socket) => {
         console.log(rooms[roomToJoin].guesses)
         let word = rooms[roomToJoin].words.find((word) => word.word === a)
         word.found = word.colour + '-found'
-        console.log(rooms[roomToJoin].words)
         let words = rooms[roomToJoin].words
         let scores = rooms[roomToJoin].scores
         io.to(roomToJoin).emit('guess-received', {words, scores})
@@ -184,7 +179,6 @@ io.on('connection', (socket) => {
         }
     })
     socket.on('end-turn', ({roomToJoin, teamToJoin}) => {
-        console.log('end turn')
         io.to(roomToJoin).emit('turn-end', 'turn-end')
     })
 })
