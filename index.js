@@ -177,7 +177,11 @@ io.on('connection', (socket) => {
         let words = rooms[roomToJoin].words
         let scores = rooms[roomToJoin].scores
         io.to(roomToJoin).emit('guess-received', {words, scores})
-    } )
+    })
+    socket.on('end-turn', ({roomToJoin, teamToJoin}) => {
+        console.log('end turn')
+        io.to(roomToJoin).emit('turn-end', 'turn-end')
+    })
 })
 
 server.listen(3001, () => {
