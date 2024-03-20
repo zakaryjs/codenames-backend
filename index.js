@@ -30,6 +30,11 @@ async function getUsers (room) {
             orange: [],
             blue: [],
         },
+        scores: {
+            orange: 8,
+            blue: 7,
+            black: 1
+        },
         guesses: [],
         clues: []
     }
@@ -111,8 +116,10 @@ io.on('connection', (socket) => {
         generateWords((words) => {
             const room = rooms[roomToJoin]
             room.words = words
+            scores = room.scores
             console.log(JSON.stringify(room, null, 4))
-            io.to(roomToJoin).emit('game-started', words)
+            io.to(roomToJoin).emit('game-started', {words, scores})
+            
         })
     })
     socket.on('join-team', ({name, roomToJoin, teamToJoin}) => {
@@ -153,12 +160,23 @@ io.on('connection', (socket) => {
     })
     socket.on('give-guess', ({roomToJoin, teamToJoin, a}) => {
         console.log(a)
-        rooms[roomToJoin].guesses.push(a)
+        if (!(rooms[roomToJoin].guesses.includes(a))) {
+            rooms[roomToJoin].guesses.push(a)
+            let word = rooms[roomToJoin].words.find((word) => word.word === a)
+            if (word.colour === 'orange') {
+                rooms[roomToJoin].scores['orange'] = rooms[roomToJoin].scores['orange'] - 1
+            }
+            if (word.colour === 'blue') {
+                rooms[roomToJoin].scores['blue'] = rooms[roomToJoin].scores['blue'] - 1
+            }
+        }
+        console.log(rooms[roomToJoin].guesses)
         let word = rooms[roomToJoin].words.find((word) => word.word === a)
         word.found = word.colour + '-found'
         console.log(rooms[roomToJoin].words)
         let words = rooms[roomToJoin].words
-        io.to(roomToJoin).emit('guess-received', words)
+        let scores = rooms[roomToJoin].scores
+        io.to(roomToJoin).emit('guess-received', {words, scores})
     } )
 })
 
