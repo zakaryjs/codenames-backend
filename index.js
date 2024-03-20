@@ -143,14 +143,6 @@ io.on('connection', (socket) => {
         io.to(roomToJoin).emit('spymasters', toSend)
     })
     socket.on('give-clue', ({roomToJoin, teamToJoin, clue}) => {
-        // let turn;
-        // if (teamToJoin == 'orange') {
-        //     turn = 'blue'
-        // }
-        // if (teamToJoin == 'blue') {
-        //     turn = 'orange'
-        // }
-        // turn: turn
         rooms[roomToJoin].clues.push(clue)
         let toSend = {
             clues: rooms[roomToJoin].clues,
@@ -169,6 +161,9 @@ io.on('connection', (socket) => {
             if (word.colour === 'blue') {
                 rooms[roomToJoin].scores['blue'] = rooms[roomToJoin].scores['blue'] - 1
             }
+            if (word.colour === 'black') {
+                rooms[roomToJoin].scores['black'] = rooms[roomToJoin].scores['black'] - 1
+            }
         }
         console.log(rooms[roomToJoin].guesses)
         let word = rooms[roomToJoin].words.find((word) => word.word === a)
@@ -177,6 +172,16 @@ io.on('connection', (socket) => {
         let words = rooms[roomToJoin].words
         let scores = rooms[roomToJoin].scores
         io.to(roomToJoin).emit('guess-received', {words, scores})
+
+        if (rooms[roomToJoin].scores['black'] == 0) {
+            io.to(roomToJoin).emit('black-win', 'black-win')
+        }
+        if (rooms[roomToJoin].scores['blue'] == 0) {
+            io.to(roomToJoin).emit('blue-win', 'blue-win')
+        }
+        if (rooms[roomToJoin].scores['orange'] == 0) {
+            io.to(roomToJoin).emit('orange-win', 'orange-win')
+        }
     })
     socket.on('end-turn', ({roomToJoin, teamToJoin}) => {
         console.log('end turn')
