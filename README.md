@@ -2,6 +2,8 @@
 
 ## Built with React, Express and Socket.IO
 
+### View the blog post here: [Project Showcase: Codenames Clone](https://zakarysutherland.hashnode.dev/project-showcase-codenames-clone)
+
 This project is a recreation of the popular game Codenames, built with React, Express and Socket.IO.
 
 ### About the Game
